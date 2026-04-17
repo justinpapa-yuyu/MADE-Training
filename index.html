@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MADE Training">
+<meta name="theme-color" content="#1a1a1a">
+<title>MADE Training</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #eeeeee;
+    --text: #1a1a1a;
+    --text2: #666666;
+    --text3: #999999;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.2);
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg2: #2a2a2a;
+      --bg3: #333333;
+      --text: #ffffff;
+      --text2: #aaaaaa;
+      --text3: #666666;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.2);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg2);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+  .header {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; flex-direction: column; line-height: 1.1; }
+  .logo-main { font-size: 18px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
+  .logo-sub { font-size: 9px; letter-spacing: 3px; color: var(--text2); text-transform: uppercase; }
+  .divider { width: 1px; height: 28px; background: var(--border2); margin: 0 4px; }
+  .header-sub { font-size: 13px; color: var(--text2); flex: 1; }
+  .db-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; padding: 3px 8px;
+    background: #EAF3DE; color: #27500A;
+    border-radius: 20px; border: 0.5px solid #97C459;
+  }
+  .db-dot { width: 5px; height: 5px; background: #639922; border-radius: 50%; }
+  .name-input {
+    padding: 6px 10px; font-size: 13px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--bg2); color: var(--text);
+    width: 88px;
+  }
+  .tab-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 100;
+  }
+  .tab-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 8px 4px 6px; gap: 3px;
+    font-size: 10px; color: var(--text3);
+    border: none; background: transparent; cursor: pointer;
+  }
+  .tab-btn.active { color: #1a1a1a; }
+  @media (prefers-color-scheme: dark) { .tab-btn.active { color: #ffffff; } }
+  .tab-icon { width: 22px; height: 22px; }
+  .content { max-width: 500px; margin: 0 auto; padding: 12px 12px 0; }
+  .card {
+    background: var(--bg); border-radius: var(--radius);
+    border: 0.5px solid var(--border); padding: 14px; margin-bottom: 10px;
+  }
+  .section-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .cat-label {
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    letter-spacing: 0.8px; text-transform: uppercase;
+    margin: 10px 0 5px;
+  }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wod-chip {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 5px 11px;
+    font-size: 12px; cursor: pointer; color: var(--text);
+  }
+  .wod-chip.selected { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .wod-desc {
+    font-size: 12px; color: var(--text2); line-height: 1.6;
+    padding: 8px; background: var(--bg2); border-radius: var(--radius-sm);
+    margin-bottom: 12px; white-space: pre-wrap;
+  }
+  .input-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .input-row label { font-size: 13px; color: var(--text2); width: 76px; flex-shrink: 0; }
+  .input-row input, .input-row select, .input-row textarea {
+    flex: 1; padding: 8px 10px; font-size: 14px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+    background: var(--bg2); color: var(--text);
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
+  .unit-wrap { display: flex; gap: 6px; align-items: center; flex: 1; }
+  .unit-wrap input { flex: 1; }
+  .unit-wrap span { font-size: 13px; color: var(--text2); white-space: nowrap; }
+  .btn-primary {
+    width: 100%; padding: 12px; background: var(--text); color: var(--bg);
+    border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 6px; letter-spacing: 0.3px;
+  }
+  .btn-primary:active { opacity: 0.8; transform: scale(0.99); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sm {
+    padding: 7px 14px; font-size: 13px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+    background: transparent; color: var(--text2); cursor: pointer;
+  }
+  .btn-danger {
+    padding: 5px 10px; font-size: 11px;
+    border: 0.5px solid #f09595; border-radius: var(--radius-sm);
+    background: transparent; color: #A32D2D; cursor: pointer;
+  }
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 12px; }
+  .metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 10px; text-align: center; }
+  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+  .metric-val { font-size: 20px; font-weight: 700; }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; margin-left: 4px; }
+  .badge-up { background: #EAF3DE; color: #3B6D11; }
+  .badge-down { background: #FCEBEB; color: #A32D2D; }
+  .badge-same { background: var(--bg2); color: var(--text2); }
+  .level-chip {
+    display: inline-block; font-size: 10px; padding: 2px 7px;
+    border-radius: 20px; font-weight: 600; border: 0.5px solid;
+  }
+  .level-rxd { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .level-a { background: #E6F1FB; color: #0C447C; border-color: #85B7EB; }
+  .level-b { background: #EAF3DE; color: #27500A; border-color: #97C459; }
+  .level-c { background: #FAEEDA; color: #633806; border-color: #EF9F27; }
+  .level-d { background: #FBEAF0; color: #72243E; border-color: #ED93B1; }
+  .chart-bar-wrap { margin-bottom: 8px; }
+  .chart-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+  .chart-bar-bg { background: var(--bg2); border-radius: 4px; height: 22px; overflow: hidden; }
+  .chart-bar { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; }
+  .record-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .record-row:last-child { border-bottom: none; }
+  .record-rank { font-size: 16px; font-weight: 700; width: 32px; color: var(--text2); }
+  .record-rank.gold { color: #BA7517; }
+  .record-rank.silver { color: #888780; }
+  .record-rank.bronze { color: #993C1D; }
+  .record-info { flex: 1; }
+  .record-name { font-size: 14px; font-weight: 600; }
+  .record-detail { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .record-score { font-size: 14px; font-weight: 600; text-align: right; }
+  .my-badge { font-size: 10px; padding: 1px 6px; background: #E6F1FB; color: #185FA5; border-radius: 20px; margin-left: 4px; }
+  .pr-banner {
+    background: var(--text); color: var(--bg);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 12px; display: none;
+  }
+  .pr-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .pr-sub { font-size: 12px; opacity: 0.7; }
+  .level-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+  .level-row:last-child { border-bottom: none; }
+  .level-label { width: 44px; flex-shrink: 0; padding-top: 1px; }
+  .level-content { flex: 1; font-size: 13px; line-height: 1.6; }
+  .wod-detail-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; }
+  .wod-detail-name { font-size: 15px; font-weight: 600; }
+  .comment-item { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+  .comment-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--bg2); display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--text2); flex-shrink: 0;
+    border: 0.5px solid var(--border);
+  }
+  .comment-bubble { background: var(--bg2); border-radius: var(--radius-sm); padding: 7px 10px; flex: 1; }
+  .comment-author { font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 2px; }
+  .comment-text { font-size: 13px; line-height: 1.5; }
+  .comment-time { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .comment-input-row { display: flex; gap: 6px; margin-top: 10px; }
+  .empty { text-align: center; padding: 30px 20px; color: var(--text2); font-size: 13px; line-height: 1.7; }
+  .loading { text-align: center; padding: 20px; color: var(--text3); font-size: 13px; }
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--bg);
+    padding: 10px 20px; border-radius: 20px; font-size: 13px;
+    display: none; white-space: nowrap; z-index: 999;
+  }
+  #tab-log, #tab-wods, #tab-history, #tab-board { display: none; }
+  #tab-log { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <span class="logo-main">MADE</span>
+    <span class="logo-sub">Training</span>
+  </div>
+  <div class="divider"></div>
+  <div class="header-sub">
+    <span id="db-status" class="db-badge"><span class="db-dot"></span>연결 중...</span>
+  </div>
+  <input type="text" class="name-input" id="global-name" placeholder="닉네임" autocomplete="off">
+</div>
+
+<div class="content">
+
+  <div id="pr-banner" class="pr-banner">
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div style="width:30px;height:30px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div>
+        <div class="pr-title" id="pr-title">신기록 달성!</div>
+        <div class="pr-sub" id="pr-sub"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기록 입력 -->
+  <div id="tab-log">
+    <div class="card">
+      <div class="section-title">WOD 선택</div>
+      <div class="cat-label">역도 / 리프팅</div>
+      <div class="chip-group">
+        <span class="wod-chip" onclick="selectWod(this,'Back Squat')">Back Squat</span>
+        <span class="wod-chip" onclick="selectWod(this,'Front Squat')">Front Squat</span>
+        <span class="wod-chip" onclick="selectWod(this,'Overhead Squat')">OHS</span>
+        <span class="wod-chip" onclick="selectWod(this,'Deadlift')">Deadlift</span>
+        <span class="wod-chip" onclick="selectWod(this,'Clean')">Clean</span>
+        <span class="wod-chip" onclick="selectWod(this,'Clean & Jerk')">C&amp;J</span>
+        <span class="wod-chip" onclick="selectWod(this,'Snatch')">Snatch</span>
+        <span class="wod-chip" onclick="selectWod(this,'Push Press')">Push Press</span>
+        <span class="wod-chip" onclick="selectWod(this,'Strict Press')">Strict Press</span>
+        <span class="wod-chip" onclick="selectWod(this,'Thruster')">Thruster</span>
+      </div>
+      <div class="cat-label">걸작 WOD (Girls)</div>
+      <div class="chip-group">
+        <span class="wod-chip selected" onclick="selectWod(this,'Fran')">Fran</span>
+        <span class="wod-chip" onclick="selectWod(this,'Cindy')">Cindy</span>
+        <span class="wod-chip" onclick="selectWod(this,'Grace')">Grace</span>
+        <span class="wod-chip" onclick="selectWod(this,'Helen')">Helen</span>
+        <span class="wod-chip" onclick="selectWod(this,'Diane')">Diane</span>
+        <span class="wod-chip" onclick="selectWod(this,'Annie')">Annie</span>
+        <span class="wod-chip" onclick="selectWod(this,'Isabel')">Isabel</span>
+        <span class="wod-chip" onclick="selectWod(this,'Karen')">Karen</span>
+        <span class="wod-chip" onclick="selectWod(this,'Eva')">Eva</span>
+        <span class="wod-chip" onclick="selectWod(this,'Chelsea')">Chelsea</span>
+      </div>
+      <div class="cat-label">영웅 WOD (Heroes)</div>
+      <div class="chip-group">
+        <span class="wod-chip" onclick="selectWod(this,'Murph')">Murph</span>
+        <span class="wod-chip" onclick="selectWod(this,'DT')">DT</span>
+        <span class="wod-chip" onclick="selectWod(this,'Jason')">Jason</span>
+        <span class="wod-chip" onclick="selectWod(this,'JT')">JT</span>
+        <span class="wod-chip" onclick="selectWod(this,'Daniel')">Daniel</span>
+        <span class="wod-chip" onclick="selectWod(this,'Nate')">Nate</span>
+      </div>
+      <div class="cat-label">벤치마크 WOD</div>
+      <div class="chip-group">
+        <span class="wod-chip" onclick="selectWod(this,'Fight Gone Bad')">Fight Gone Bad</span>
+        <span class="wod-chip" onclick="selectWod(this,'Filthy 50')">Filthy 50</span>
+        <span class="wod-chip" onclick="selectWod(this,'The Chief')">The Chief</span>
+        <span class="wod-chip" onclick="selectWod(this,'Barbara')">Barbara</span>
+        <span class="wod-chip" onclick="selectWod(this,'Mary')">Mary</span>
+      </div>
+      <div class="cat-label">직접 입력</div>
+      <div class="chip-group">
+        <span class="wod-chip" onclick="selectWod(this,'직접입력')">+ 직접입력</span>
+      </div>
+    </div>
+    <div class="card">
+      <div id="wod-desc" class="wod-desc"></div>
+      <div id="custom-wod-row" class="input-row" style="display:none;">
+        <label>WOD 이름</label>
+        <input type="text" id="custom-wod" placeholder="WOD 이름 입력">
+      </div>
+      <div class="input-row">
+        <label>레벨</label>
+        <select id="score-level">
+          <option value="Rxd">Rxd</option>
+          <option value="A">Scaled A</option>
+          <option value="B">Scaled B</option>
+          <option value="C">Scaled C</option>
+          <option value="D">Scaled D</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <label>기록 유형</label>
+        <select id="score-type" onchange="updateScoreType()">
+          <option value="time">시간 (mm:ss)</option>
+          <option value="reps">반복 횟수 (reps)</option>
+          <option value="weight">무게 (lb)</option>
+          <option value="etc">기타</option>
+        </select>
+      </div>
+      <div id="time-row" class="input-row">
+        <label>기록</label>
+        <input type="text" id="score-time" placeholder="예: 3:45" inputmode="numeric">
+      </div>
+      <div id="reps-row" class="input-row" style="display:none;">
+        <label>기록</label>
+        <div class="unit-wrap"><input type="number" id="score-reps" placeholder="반복 횟수" inputmode="numeric"><span>reps</span></div>
+      </div>
+      <div id="weight-row" class="input-row" style="display:none;">
+        <label>무게</label>
+        <div class="unit-wrap"><input type="number" id="score-weight" placeholder="225" step="1" inputmode="decimal"><span>lb</span></div>
+      </div>
+      <div id="weight-sets-row" class="input-row" style="display:none;">
+        <label>세트 정보</label>
+        <input type="text" id="score-sets" placeholder="예: 1RM, 5RM, 3x5">
+      </div>
+      <div id="etc-row" class="input-row" style="display:none;">
+        <label>기록</label>
+        <input type="text" id="score-etc" placeholder="자유 입력">
+      </div>
+      <div class="input-row">
+        <label>메모</label>
+        <input type="text" id="note" placeholder="컨디션, 특이사항 등">
+      </div>
+      <button class="btn-primary" id="save-btn" onclick="saveRecord()">기록 저장하기</button>
+    </div>
+  </div>
+
+  <!-- WOD 세부 -->
+  <div id="tab-wods">
+    <div class="card">
+      <div class="section-title">WOD 세부 내역 관리</div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Rxd / Scaled 기준을 정리해두세요.<br>저장하면 모든 멤버가 볼 수 있어요.</p>
+      <div class="input-row"><label>WOD 이름</label><input type="text" id="detail-wod-name" placeholder="예: Fran"></div>
+      <div class="input-row" style="align-items:flex-start;"><label style="padding-top:8px;">설명</label><textarea id="detail-desc" placeholder="동작 및 반복 수 설명"></textarea></div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">레벨별 기준</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;gap:6px;align-items:center;"><span class="level-chip level-rxd" style="width:50px;text-align:center;">Rxd</span><input type="text" id="lvl-rxd" placeholder="처방 그대로" style="flex:1;padding:7px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);"></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="level-chip level-a" style="width:50px;text-align:center;">A</span><input type="text" id="lvl-a" placeholder="스케일 A 기준" style="flex:1;padding:7px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);"></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="level-chip level-b" style="width:50px;text-align:center;">B</span><input type="text" id="lvl-b" placeholder="스케일 B 기준" style="flex:1;padding:7px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);"></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="level-chip level-c" style="width:50px;text-align:center;">C</span><input type="text" id="lvl-c" placeholder="스케일 C 기준" style="flex:1;padding:7px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);"></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="level-chip level-d" style="width:50px;text-align:center;">D</span><input type="text" id="lvl-d" placeholder="추가 레벨 (선택)" style="flex:1;padding:7px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);"></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveWodDetail()">WOD 내역 저장</button>
+    </div>
+    <div id="wod-detail-list"></div>
+  </div>
+
+  <!-- 내 기록 -->
+  <div id="tab-history">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">총 기록</div><div class="metric-val" id="m-total">-</div></div>
+      <div class="metric"><div class="metric-label">WOD 종류</div><div class="metric-val" id="m-wods">-</div></div>
+      <div class="metric"><div class="metric-label">PR 횟수</div><div class="metric-val" id="m-pr">-</div></div>
+    </div>
+    <div id="history-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <!-- 리더보드 -->
+  <div id="tab-board">
+    <div class="card" style="margin-bottom:10px;">
+      <div class="section-title">WOD 선택</div>
+      <select id="board-wod" onchange="renderLeaderboard()" style="width:100%;padding:8px 10px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);">
+        <option>기록 없음</option>
+      </select>
+    </div>
+    <div class="card" id="board-detail-card" style="display:none;margin-bottom:10px;"><div id="board-detail-content"></div></div>
+    <div class="card"><div id="leaderboard-content"><div class="loading">불러오는 중...</div></div></div>
+    <div class="card">
+      <div class="section-title">댓글</div>
+      <div id="comment-list"></div>
+      <div class="comment-input-row">
+        <input type="text" id="comment-input" placeholder="응원 댓글을 남겨보세요..." style="flex:1;padding:8px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);">
+        <button class="btn-sm" onclick="postComment()">등록</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 하단 탭바 -->
+<nav class="tab-bar">
+  <button class="tab-btn active" id="tabBtn-log" onclick="showTab('log')">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+    기록 입력
+  </button>
+  <button class="tab-btn" id="tabBtn-wods" onclick="showTab('wods')">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    WOD 세부
+  </button>
+  <button class="tab-btn" id="tabBtn-history" onclick="showTab('history')">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    내 기록
+  </button>
+  <button class="tab-btn" id="tabBtn-board" onclick="showTab('board')">
+    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+    리더보드
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://zntrowjscgkzvwganagv.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpudHJvd2pzY2drenZ3Z2FuYWd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MDgyNjgsImV4cCI6MjA5MTk4NDI2OH0.H37CyJttLryKD9-EnhYLxguVOf7TkHpapKsCo90RBV8';
+const HDR={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'};
+
+async function sb(path,method='GET',body=null){
+  const opts={method,headers:{...HDR}};
+  if(method==='GET')delete opts.headers['Prefer'];
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SB_URL+'/rest/v1/'+path,opts);
+  if(!r.ok){const e=await r.text();throw new Error(e);}
+  if(method==='DELETE'||r.status===204)return[];
+  const txt=await r.text();
+  return txt?JSON.parse(txt):[];
+}
+
+const WOD_DATA={
+  'Back Squat':{desc:'Back Squat 1RM / 최대 중량',type:'weight'},
+  'Front Squat':{desc:'프론트 스쿼트 1RM / 최대 중량',type:'weight'},
+  'Overhead Squat':{desc:'오버헤드 스쿼트 1RM / 최대 중량',type:'weight'},
+  'Deadlift':{desc:'데드리프트 1RM / 최대 중량',type:'weight'},
+  'Clean':{desc:'클린 1RM / 최대 중량',type:'weight'},
+  'Clean & Jerk':{desc:'클린 앤 저크 1RM / 최대 중량',type:'weight'},
+  'Snatch':{desc:'스내치 1RM / 최대 중량',type:'weight'},
+  'Push Press':{desc:'푸시 프레스 1RM / 최대 중량',type:'weight'},
+  'Strict Press':{desc:'스트릭트 프레스 1RM / 최대 중량',type:'weight'},
+  'Thruster':{desc:'스러스터 1RM / 최대 중량',type:'weight'},
+  'Fran':{desc:'21-15-9\n스쿼트 스러스터 (95lb/65lb) + 풀업\n최단 시간 완료',type:'time'},
+  'Cindy':{desc:'20분 AMRAP\n5 풀업 + 10 푸시업 + 15 에어 스쿼트\n최다 라운드',type:'reps'},
+  'Grace':{desc:'30 클린 앤 저크 (135lb/95lb)\n최단 시간 완료',type:'time'},
+  'Helen':{desc:'3라운드\n400m 런 + 21 KB 스윙 (53lb/35lb) + 12 풀업\n최단 시간 완료',type:'time'},
+  'Diane':{desc:'21-15-9\n데드리프트 (225lb/155lb) + HSPU\n최단 시간 완료',type:'time'},
+  'Annie':{desc:'50-40-30-20-10\n더블 언더 + 싯업\n최단 시간 완료',type:'time'},
+  'Isabel':{desc:'30 스내치 (135lb/95lb)\n최단 시간 완료',type:'time'},
+  'Karen':{desc:'150 월볼샷 (20lb/14lb)\n최단 시간 완료',type:'time'},
+  'Eva':{desc:'5라운드\n800m 런 + 30 KB 스윙 (70lb) + 30 풀업\n최단 시간 완료',type:'time'},
+  'Chelsea':{desc:'30분 EMOM\n5 풀업 + 10 푸시업 + 15 스쿼트',type:'etc'},
+  'Murph':{desc:'1마일 런\n100 풀업 + 200 푸시업 + 300 에어 스쿼트\n1마일 런\n최단 시간 완료',type:'time'},
+  'DT':{desc:'5라운드\n12 데드리프트 + 9 행파워클린 + 6 푸시저크\n(155lb/105lb) 최단 시간 완료',type:'time'},
+  'Jason':{desc:'5라운드\n100 스쿼트 + 5 머슬업\n최단 시간 완료',type:'time'},
+  'JT':{desc:'21-15-9\nHSPU + 링딥 + 푸시업\n최단 시간 완료',type:'time'},
+  'Daniel':{desc:'50 풀업 + 400m 런\n21 스러스터 (135lb) + 800m 런\n21 파워클린 (135lb) + 800m 런\n50 풀업 + 400m 런',type:'time'},
+  'Nate':{desc:'20분 AMRAP\n2 머슬업 + 4 HSPU + 8 KB 스윙 (70lb)\n최다 라운드',type:'reps'},
+  'Fight Gone Bad':{desc:'3라운드 (각 1분씩 5스테이션)\n월볼 + SDHP + 박스점프 + 푸시프레스 + 로잉\n총 렙수',type:'reps'},
+  'Filthy 50':{desc:'50 박스점프 + 50 점핑풀업 + 50 KB스윙\n50 워킹런지 + 50 무릎터치 + 50 푸시프레스\n50 백익스텐션 + 50 월볼 + 50 버피 + 50 더블언더\n최단 시간 완료',type:'time'},
+  'The Chief':{desc:'5x3분 AMRAP (1분 휴식)\n3 파워클린 + 6 푸시업 + 9 에어스쿼트\n총 라운드 수',type:'reps'},
+  'Barbara':{desc:'5라운드\n20 풀업 + 30 푸시업 + 40 싯업 + 50 스쿼트\n(라운드간 3분 휴식)',type:'time'},
+  'Mary':{desc:'20분 AMRAP\n5 HSPU + 10 피스톨 + 15 풀업\n최다 라운드',type:'reps'},
+};
+
+const TYPE_LABEL={time:'시간',reps:'반복',weight:'무게',etc:'기타'};
+const LEVEL_CLASS={Rxd:'level-rxd',A:'level-a',B:'level-b',C:'level-c',D:'level-d'};
+let selectedWod='Fran';
+
+function toast(msg,dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',dur);
+}
+function getName(){return document.getElementById('global-name').value.trim();}
+
+async function init(){
+  try{
+    await sb('records?limit=1');
+    const el=document.getElementById('db-status');
+    el.innerHTML='<span class="db-dot"></span>Supabase 연결됨';
+  }catch(e){
+    const el=document.getElementById('db-status');
+    el.innerHTML='연결 실패';
+    el.style.background='#FCEBEB';el.style.color='#A32D2D';el.style.borderColor='#f09595';
+  }
+  updateWodDesc();
+  await loadBoardWods();
+}
+
+function selectWod(el,wod){
+  document.querySelectorAll('.wod-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');selectedWod=wod;
+  document.getElementById('custom-wod-row').style.display=wod==='직접입력'?'flex':'none';
+  updateWodDesc();
+  const data=WOD_DATA[wod];
+  if(data){document.getElementById('score-type').value=data.type;updateScoreType();}
+}
+function updateWodDesc(){
+  const data=WOD_DATA[selectedWod];
+  const el=document.getElementById('wod-desc');
+  if(data){el.textContent=data.desc;el.style.display='block';}
+  else if(selectedWod==='직접입력'){el.textContent='직접 WOD 이름을 입력하세요';el.style.display='block';}
+  else{el.style.display='none';}
+}
+function updateScoreType(){
+  const t=document.getElementById('score-type').value;
+  ['time','reps','weight','etc'].forEach(id=>{
+    document.getElementById(id+'-row').style.display=t===id?'flex':'none';
+    if(id==='weight')document.getElementById('weight-sets-row').style.display=t==='weight'?'flex':'none';
+  });
+}
+function timeToSec(s){const p=s.split(':');return p.length===2?parseInt(p[0])*60+parseInt(p[1]):parseInt(s);}
+
+async function isPR(wod,name,type,score,level){
+  try{
+    const rows=await sb(`records?wod=eq.${encodeURIComponent(wod)}&name=eq.${encodeURIComponent(name)}&type=eq.${type}&level=eq.${level}&select=score`);
+    if(!rows.length)return true;
+    if(type==='time')return score<Math.min(...rows.map(r=>r.score));
+    if(type==='reps'||type==='weight')return score>Math.max(...rows.map(r=>r.score));
+  }catch(e){}
+  return false;
+}
+function showPRBanner(wod,display,level){
+  document.getElementById('pr-title').textContent='신기록! '+wod+' ('+level+') PR 달성';
+  document.getElementById('pr-sub').textContent='기록: '+display+' — 최고 기록 경신!';
+  const b=document.getElementById('pr-banner');b.style.display='block';
+  setTimeout(()=>b.style.display='none',5000);
+}
+
+async function saveRecord(){
+  const name=getName();
+  if(!name){toast('닉네임을 입력해주세요');return;}
+  const type=document.getElementById('score-type').value;
+  const level=document.getElementById('score-level').value;
+  let wod=selectedWod==='직접입력'?document.getElementById('custom-wod').value.trim():selectedWod;
+  if(!wod){toast('WOD 이름을 입력해주세요');return;}
+  let score=null,display='';
+  if(type==='time'){const t=document.getElementById('score-time').value.trim();if(!t){toast('시간을 입력해주세요');return;}score=timeToSec(t);display=t;}
+  else if(type==='reps'){const r=parseInt(document.getElementById('score-reps').value);if(!r){toast('횟수를 입력해주세요');return;}score=r;display=r+' reps';}
+  else if(type==='weight'){const w=parseFloat(document.getElementById('score-weight').value);if(!w){toast('무게를 입력해주세요');return;}const s=document.getElementById('score-sets').value.trim();score=w;display=w+'lb'+(s?' ('+s+')'  :'');}
+  else if(type==='etc'){const e=document.getElementById('score-etc').value.trim();if(!e){toast('기록을 입력해주세요');return;}display=e;}
+  const note=document.getElementById('note').value.trim();
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.textContent='저장 중...';
+  try{
+    const prAchieved=score!==null&&await isPR(wod,name,type,score,level);
+    await sb('records','POST',{wod,name,type,level,score,display,note,date:new Date().toLocaleDateString('ko-KR'),is_pr:prAchieved});
+    if(prAchieved){showPRBanner(wod,display,level);setTimeout(()=>showTab('history'),400);}
+    else toast('기록이 저장되었습니다!');
+    ['score-time','score-reps','score-weight','score-sets','score-etc','note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    await loadBoardWods();
+  }catch(e){toast('저장 실패: '+e.message);}
+  btn.disabled=false;btn.textContent='기록 저장하기';
+}
+
+async function saveWodDetail(){
+  const name=document.getElementById('detail-wod-name').value.trim();
+  if(!name){toast('WOD 이름을 입력해주세요');return;}
+  const description=document.getElementById('detail-desc').value.trim();
+  const levels={Rxd:document.getElementById('lvl-rxd').value.trim(),A:document.getElementById('lvl-a').value.trim(),B:document.getElementById('lvl-b').value.trim(),C:document.getElementById('lvl-c').value.trim(),D:document.getElementById('lvl-d').value.trim()};
+  try{
+    const existing=await sb(`wod_details?name=eq.${encodeURIComponent(name)}&select=id`);
+    if(existing.length)await sb(`wod_details?id=eq.${existing[0].id}`,'PATCH',{description,levels,date:new Date().toLocaleDateString('ko-KR')});
+    else await sb('wod_details','POST',{name,description,levels,date:new Date().toLocaleDateString('ko-KR')});
+    ['detail-wod-name','detail-desc','lvl-rxd','lvl-a','lvl-b','lvl-c','lvl-d'].forEach(id=>document.getElementById(id).value='');
+    toast('WOD 내역이 저장되었습니다!');
+    renderWodDetails();
+  }catch(e){toast('저장 실패: '+e.message);}
+}
+async function deleteWodDetail(id){
+  try{await sb(`wod_details?id=eq.${id}`,'DELETE');toast('삭제되었습니다');renderWodDetails();}
+  catch(e){toast('삭제 실패');}
+}
+async function renderWodDetails(){
+  const el=document.getElementById('wod-detail-list');
+  el.innerHTML='<div class="loading">불러오는 중...</div>';
+  try{
+    const rows=await sb('wod_details?order=created_at.desc');
+    if(!rows.length){el.innerHTML='<div class="empty">등록된 WOD 세부 내역이 없습니다.<br>위에서 추가해보세요!</div>';return;}
+    el.innerHTML=rows.map(d=>{
+      const lrs=Object.entries(d.levels||{}).filter(([,v])=>v).map(([k,v])=>`<div class="level-row"><div class="level-label"><span class="level-chip ${LEVEL_CLASS[k]||'level-rxd'}">${k}</span></div><div class="level-content">${v}</div></div>`).join('');
+      return `<div class="wod-detail-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div><div class="wod-detail-name">${d.name}</div>${d.description?`<div style="font-size:12px;color:var(--text2);margin-top:3px;white-space:pre-wrap;">${d.description}</div>`:''}</div><button class="btn-danger" onclick="deleteWodDetail(${d.id})">삭제</button></div>${lrs?`<div style="border-top:0.5px solid var(--border);padding-top:8px;">${lrs}</div>`:''}</div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty">불러오기 실패</div>';}
+}
+
+function showTab(t){
+  ['log','wods','history','board'].forEach(id=>{
+    document.getElementById('tab-'+id).style.display=id===t?'block':'none';
+    document.getElementById('tabBtn-'+id).classList.toggle('active',id===t);
+  });
+  if(t==='wods')renderWodDetails();
+  if(t==='history')renderHistory();
+  if(t==='board'){renderLeaderboard();renderComments();}
+}
+
+async function renderHistory(){
+  const name=getName();
+  const list=document.getElementById('history-list');
+  list.innerHTML='<div class="loading">불러오는 중...</div>';
+  try{
+    let url='records?order=created_at.asc';
+    if(name)url+=`&name=eq.${encodeURIComponent(name)}`;
+    const rows=await sb(url);
+    document.getElementById('m-total').textContent=rows.length;
+    document.getElementById('m-wods').textContent=new Set(rows.map(r=>r.wod)).size;
+    document.getElementById('m-pr').textContent=rows.filter(r=>r.is_pr).length;
+    if(!rows.length){list.innerHTML='<div class="empty">아직 기록이 없습니다.<br>오늘 첫 WOD를 입력해보세요!</div>';return;}
+    const grouped={};
+    rows.forEach(r=>{if(!grouped[r.wod])grouped[r.wod]=[];grouped[r.wod].push(r);});
+    let html='';
+    Object.keys(grouped).forEach(wod=>{
+      const recs=grouped[wod];
+      html+='<div class="card"><div class="section-title">'+wod+'</div>';
+      recs.forEach((r,i)=>{
+        let badge='';
+        const prev=i>0?recs[i-1]:null;
+        if(prev&&prev.type===r.type&&prev.level===r.level&&r.score!==null&&prev.score!==null){
+          if(r.type==='time'){const d=prev.score-r.score;badge=d>0?'<span class="badge badge-up">▲ '+Math.abs(d)+'초</span>':d<0?'<span class="badge badge-down">▼ '+Math.abs(d)+'초</span>':'<span class="badge badge-same">동일</span>';}
+          else{const d=r.score-prev.score;badge=d>0?'<span class="badge badge-up">+'+Math.abs(d)+(r.type==='weight'?'lb':'')+'</span>':d<0?'<span class="badge badge-down">'+d+(r.type==='weight'?'lb':'')+'</span>':'<span class="badge badge-same">동일</span>';}
+        }
+        const lv=r.level||'Rxd';
+        const lvTag='<span class="level-chip '+(LEVEL_CLASS[lv]||'level-rxd')+'" style="font-size:9px;padding:1px 5px;margin-left:3px;">'+lv+'</span>';
+        const prTag=r.is_pr?'<span style="font-size:10px;padding:1px 5px;background:var(--text);color:var(--bg);border-radius:20px;margin-left:3px;font-weight:700;">PR</span>':'';
+        if(r.score!==null){
+          const sg=recs.filter(x=>x.type===r.type&&x.level===r.level&&x.score!==null);
+          const best=sg.reduce((a,b)=>r.type==='time'?(a.score<b.score?a:b):(a.score>b.score?a:b));
+          const worst=sg.reduce((a,b)=>r.type==='time'?(a.score>b.score?a:b):(a.score<b.score?a:b));
+          const range=worst.score-best.score||1;
+          let pct=r.type==='time'?Math.round(100-((r.score-best.score)/range)*60):Math.round(40+((r.score-worst.score)/range)*60);
+          const isBest=r.id===best.id;
+          html+='<div class="chart-bar-wrap"><div class="chart-label"><span style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">'+r.date+lvTag+badge+prTag+'</span><span>'+r.display+'</span></div>';
+          html+='<div class="chart-bar-bg"><div class="chart-bar" style="width:'+pct+'%;background:'+(isBest?'var(--text)':'var(--bg3)')+';color:'+(isBest?'var(--bg)':'var(--text2)')+';">'+(isBest?'최고':'')+'</div></div></div>';
+        }else{
+          html+='<div class="chart-bar-wrap"><div class="chart-label"><span style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">'+r.date+lvTag+prTag+'</span><span>'+r.display+'</span></div></div>';
+        }
+        if(r.note)html+='<div style="font-size:11px;color:var(--text2);margin-bottom:5px;padding-left:2px;">메모: '+r.note+'</div>';
+      });
+      html+='</div>';
+    });
+    list.innerHTML=html;
+  }catch(e){list.innerHTML='<div class="empty">불러오기 실패</div>';}
+}
+
+async function loadBoardWods(){
+  try{
+    const rows=await sb('records?select=wod');
+    const wods=[...new Set(rows.map(r=>r.wod))];
+    const sel=document.getElementById('board-wod');
+    sel.innerHTML=wods.length?wods.map(w=>'<option>'+w+'</option>').join(''):'<option>기록 없음</option>';
+  }catch(e){}
+}
+
+async function renderLeaderboard(){
+  const wod=document.getElementById('board-wod').value;
+  const myName=getName();
+  const el=document.getElementById('leaderboard-content');
+  el.innerHTML='<div class="loading">불러오는 중...</div>';
+  try{
+    const detail=(await sb(`wod_details?name=eq.${encodeURIComponent(wod)}`))[0];
+    const dc=document.getElementById('board-detail-card');
+    if(detail){
+      const lrs=Object.entries(detail.levels||{}).filter(([,v])=>v).map(([k,v])=>`<div class="level-row"><div class="level-label"><span class="level-chip ${LEVEL_CLASS[k]||'level-rxd'}">${k}</span></div><div class="level-content">${v}</div></div>`).join('');
+      document.getElementById('board-detail-content').innerHTML='<div style="font-size:13px;font-weight:600;margin-bottom:6px;">'+wod+' 기준</div>'+(detail.description?'<div style="font-size:12px;color:var(--text2);margin-bottom:8px;white-space:pre-wrap;">'+detail.description+'</div>':'')+(lrs?`<div style="border-top:0.5px solid var(--border);padding-top:8px;">${lrs}</div>`:'');
+      dc.style.display='block';
+    }else dc.style.display='none';
+    const rows=await sb(`records?wod=eq.${encodeURIComponent(wod)}&order=created_at.asc`);
+    if(!rows.length){el.innerHTML='<div class="empty">이 WOD의 기록이 없습니다</div>';return;}
+    const best={};
+    rows.filter(r=>r.score!==null).forEach(r=>{
+      const key=r.name+'|'+r.type+'|'+(r.level||'Rxd');
+      if(!best[key])best[key]=r;
+      else if(r.type==='time'&&r.score<best[key].score)best[key]=r;
+      else if((r.type==='reps'||r.type==='weight')&&r.score>best[key].score)best[key]=r;
+    });
+    const byLevel={};
+    ['Rxd','A','B','C','D'].forEach(lv=>{
+      const e=Object.values(best).filter(r=>(r.level||'Rxd')===lv);
+      if(e.length)byLevel[lv]=e;
+    });
+    const rc=['gold','silver','bronze'],rs=['1위','2위','3위'];
+    let html='';let first=true;
+    Object.keys(byLevel).forEach(lv=>{
+      const sorted=byLevel[lv].sort((a,b)=>a.type==='time'?a.score-b.score:b.score-a.score);
+      html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;${first?'':'margin-top:14px;'}"><span class="level-chip ${LEVEL_CLASS[lv]||'level-rxd'}">${lv}</span><span style="font-size:11px;color:var(--text2);">${TYPE_LABEL[sorted[0].type]||''} 기준</span></div>`;
+      first=false;
+      html+=sorted.map((r,i)=>`<div class="record-row"><div class="record-rank ${rc[i]||''}">${rs[i]||(i+1)+'위'}</div><div class="record-info"><div class="record-name">${r.name}${myName&&r.name===myName?'<span class="my-badge">나</span>':''}${r.is_pr?'<span style="font-size:10px;padding:1px 5px;background:var(--text);color:var(--bg);border-radius:20px;margin-left:3px;font-weight:700;">PR</span>':''}</div><div class="record-detail">${r.date}${r.note?' · '+r.note:''}</div></div><div class="record-score">${r.display}</div></div>`).join('');
+    });
+    const etcRecs=rows.filter(r=>r.type==='etc');
+    if(etcRecs.length){
+      html+=`<div style="margin-top:14px;margin-bottom:8px;font-size:11px;color:var(--text2);">기타 기록</div>`;
+      html+=etcRecs.map(r=>`<div class="record-row"><div class="record-rank" style="font-size:12px;">-</div><div class="record-info"><div class="record-name">${r.name}${myName&&r.name===myName?'<span class="my-badge">나</span>':''}</div><div class="record-detail">${r.date}${r.note?' · '+r.note:''}</div></div><div class="record-score">${r.display}</div></div>`).join('');
+    }
+    el.innerHTML=html;
+  }catch(e){el.innerHTML='<div class="empty">불러오기 실패</div>';}
+}
+
+async function postComment(){
+  const name=getName();
+  if(!name){toast('닉네임을 입력해주세요');return;}
+  const text=document.getElementById('comment-input').value.trim();
+  if(!text)return;
+  const wod=document.getElementById('board-wod').value;
+  try{
+    await sb('comments','POST',{wod,name,text,date:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
+    document.getElementById('comment-input').value='';
+    renderComments();
+  }catch(e){toast('댓글 저장 실패');}
+}
+async function renderComments(){
+  const wod=document.getElementById('board-wod').value;
+  const myName=getName();
+  const el=document.getElementById('comment-list');
+  try{
+    const rows=await sb(`comments?wod=eq.${encodeURIComponent(wod)}&order=created_at.asc&limit=30`);
+    if(!rows.length){el.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0 10px;">첫 댓글을 남겨보세요!</div>';return;}
+    el.innerHTML=rows.map(c=>{
+      const isMe=c.name===myName;
+      return `<div class="comment-item"><div class="comment-avatar" style="${isMe?'background:var(--text);color:var(--bg);border-color:var(--text);':''}">${c.name.slice(0,2).toUpperCase()}</div><div style="flex:1;"><div class="comment-bubble"><div class="comment-author">${c.name}${isMe?'<span class="my-badge">나</span>':''}</div><div class="comment-text">${c.text}</div></div><div class="comment-time">${c.date}</div></div></div>`;
+    }).join('');
+  }catch(e){}
+}
+
+init();
+</script>
+</body>
+</html>
